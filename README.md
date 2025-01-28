@@ -1,68 +1,105 @@
-# Azure Synapse Analytics & Databricks Pipeline Project
+# **Azure End-to-End Data Pipeline Project**
 
-This project demonstrates the full pipeline from data transformation to reporting using **Azure Synapse Analytics**, **Azure Data Lake**, **Databricks**, and **Power BI**. The goal is to efficiently process, store, and analyze sales data using various Azure tools and services.
+## **Overview**
+This project implements a comprehensive data pipeline using Azure cloud services to process and analyze AdventureWorks sales data. The solution follows the Medallion Architecture pattern, utilizing the **Bronze**, **Silver**, and **Gold** layers. The architecture incorporates various Azure services for data ingestion, transformation, and analytics. A **dynamic pipeline** has been implemented, reducing ETL time by **70%**, making the data processing more efficient. Additionally, we leverage a **Serverless SQL pool** for **cost-effective queries**, optimizing both performance and cost.
 
-## Project Overview
+![Project_Architecture_Diagram](https://github.com/user-attachments/assets/df11be48-8035-4c8e-8279-77b91c7339ad)
 
-The project involves transforming and processing data in multiple stages:
+## **Business Problem Statement**
+Businesses today are overwhelmed by large volumes of data that require complex ETL processes and analytics to gain actionable insights. The AdventureWorks dataset simulates a retail business environment where data across multiple dimensions (sales, products, customers, etc.) needs to be processed, cleaned, and analyzed to generate business intelligence. This project aims to streamline the ETL process, make the data accessible for decision-makers, and reduce the time spent on query processing, ultimately improving operational efficiency.
 
-1. **Data Ingestion**: Data is loaded from different sources (CSV, Parquet, etc.) into an Azure Data Lake.
-2. **Data Transformation**: Using **Azure Databricks**, data is processed, cleaned, and transformed to meet analytical requirements.
-3. **Data Storage**: Data is stored in different layers of the Data Lake: **Silver** for processed data and **Gold** for final reporting.
-4. **Data Analytics**: **Azure Synapse Analytics** is used to perform SQL-based analytics on the processed data.
-5. **Reporting**: Data is connected to **Power BI** for visualization and reporting, enabling business decision-making.
+## **Architecture Components**
+- **Data Source**: HTTP (GitHub)
+- **Data Ingestion**: Azure Data Factory
+- **Data Storage**: Azure Data Lake Gen 2
+  - **Bronze Layer** (Raw Data)
+  - **Silver Layer** (Transformed Data)
+  - **Gold Layer** (Serving Layer)
+- **Processing**: Azure Databricks
+- **Analytics**: Azure Synapse Analytics
+- **Visualization**: Power BI
+- **Security**: Azure Entra ID, Certificates, and Secrets
 
-## Key Steps
+## **Dataset**
+The project works with 10 AdventureWorks tables:
+- AdventureWorks_Calendar.csv
+- AdventureWorks_Customers.csv
+- AdventureWorks_Product_Categories.csv
+- AdventureWorks_Product_Subcategories.csv
+- AdventureWorks_Products.csv
+- AdventureWorks_Returns.csv
+- AdventureWorks_Sales_2015.csv
+- AdventureWorks_Sales_2016.csv
+- AdventureWorks_Sales_2017.csv
+- AdventureWorks_Territories.csv
 
-### Step 1: Data Transformation with Databricks
+## **Setup Instructions**
 
-- **Transform Products Table**: Extracted the first word before the `-` in `ProductSKU` and the first word before the space in `ProductName`.
-- **Push Data to Silver Layer**: Transformed data was saved in the **Silver** layer in Parquet format.
-- **Analysis**: Visualized the number of orders placed on each order date with a chart in Databricks.
-- **Other Transformations**: Multiple transformations like date formatting, text replacement, and multiplication were performed on the `Sales` table.
+### **Prerequisites**
+- Azure Free Account (USD 200 credit for 1 month)
+- Basic understanding of Azure services
+- Access to GitHub for source data
 
-### Step 2: Data Storage and Security
+### **Initial Setup**
+1. Create an **Azure Resource Group**.
+2. Set up **Storage Account** (Data Lake Gen 2).
+   - Use **LRS (Locally Redundant Storage)**.
+   - Enable **hierarchical namespace**.
+   - Select **Hot Tier** for storage.
+   - Enable **public network access**.
+3. Create containers for **Bronze**, **Silver**, and **Gold layers**.
 
-- **External Data Lake Configuration**: Configured **Azure Synapse Analytics** to access data stored in Azure Data Lake.
-- **Permissions Setup**: Assigned **Storage Blob Data Contributor** role to the Synapse workspace for access control.
+### **Data Factory Setup**
+1. Create **Azure Data Factory** resource.
+2. Implement **Dynamic Pipeline**:
+   - Create a **JSON configuration file** for file mapping.
+   - Set up **Lookup** and **ForEach** activities.
+   - Configure **parameterized Copy activity**.
 
-### Step 3: Data Access and Reporting
+### **Databricks Configuration**
+1. Create an **Azure Databricks** workspace.
+2. Set up a **single-node cluster**.
+3. Configure **authentication**:
+   - Register application in **Microsoft Entra ID**.
+   - Assign **Storage Blob Data Contributor** role.
+   - Set up **OAuth authentication** in Databricks.
 
-- **SQL Views and External Tables**: Created SQL views and external tables to enable seamless access to data stored in the Data Lake.
-- **Power BI Integration**: Connected **Power BI** to **Azure Synapse Analytics** using the Serverless SQL endpoint, allowing data analysts to visualize and report on the transformed data.
+### **Data Transformation**
+Implement transformations for each dataset:
+1. **Calendar**: Add **Month** and **Year** columns.
+2. **Customers**: Create **fullName** column.
+3. **Products**: Transform **ProductSKU** and **ProductName**.
+4. **Sales**: Convert dates, modify **OrderNumber**, and add calculations.
 
-## Tools & Technologies
+### **Synapse Analytics Setup**
+1. Create **Synapse Analytics** workspace.
+2. Configure **permissions** and **access**.
+3. Create **SQL views** for data access.
+4. Set up **external tables** with:
+   - Database-scoped credentials.
+   - External data sources.
+   - External file formats.
 
-- **Azure Synapse Analytics**: Used for big data analytics and SQL-based queries on data.
-- **Databricks**: Used for data transformations, visualizations, and analytics.
-- **Azure Data Lake Storage Gen2**: Data lake for storing raw and processed data.
-- **Power BI**: Used for visualizing and reporting the data.
-- **Parquet**: A columnar data storage format used for optimized data storage and query performance.
+### **Power BI Integration**
+1. Connect to **Synapse Analytics endpoint**.
+2. Import required tables.
+3. Create **visualizations** and **dashboards**.
 
-## Setup Instructions
+## **Security Features**
+- Integration with **Azure Entra ID**.
+- Use of **Managed Identities**.
+- **Secure credential management**.
+- **Role-based access control**.
 
-1. **Set Up Azure Synapse Analytics**:
-   - Create an Azure Synapse workspace and configure it with SQL pool and storage accounts.
-   - Set up appropriate access control (IAM) for Azure Data Lake.
+## **File Formats**
+- Input: **CSV**
+- Processed: **Parquet** with **Snappy compression**.
 
-2. **Install Databricks**:
-   - Create an Azure Databricks workspace.
-   - Run the transformation scripts provided in this repository on the Databricks platform.
+## **Performance Features**
+- **Dynamic pipeline reducing ETL time by 70%**: The pipeline is optimized for faster data transformation and processing.
+- **Efficient data storage** using **Parquet format**: A columnar storage format providing high efficiency for querying large datasets.
+- **Optimized transformations** in Databricks: Data processing is streamlined using Apache Spark for faster computations.
+- **Serverless SQL pool for cost-effective queries**: The serverless SQL pool in Azure Synapse ensures that we only pay for the queries executed, optimizing costs.
 
-3. **Power BI Integration**:
-   - Connect Power BI to Azure Synapse Analytics using the Serverless SQL endpoint.
-   - Load the tables and start visualizing the data.
-
-## Conclusion
-
-This project demonstrates how to set up an efficient ETL pipeline using Azure Synapse, Databricks, and Power BI, allowing seamless data processing, transformation, and reporting for business analysis.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Microsoft Azure Documentation
-- Databricks Documentation
-- Power BI Documentation
+## **Contact**
+mdtarif.chat@gmail.com
